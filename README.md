@@ -1,2 +1,3 @@
-# curso.r.trt
-Curso de R apresentado no TRT 3
+# Curso de R
+
+Apresentação do curso de R para o TRT 3.
