@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Relatórios Dinâmicos com R</title>
+  <title>R</title>
   <link rel="icon" href="data:,">
   <link type="text/css" rel="stylesheet" href="css/reveal.css">
   <link type="text/css" rel="stylesheet" href="css/theme/black.css">
@@ -24,7 +24,6 @@
       <!-- Início -->
       <section>
         <h1>R</h1>
-        <h2>Relatórios Dinâmicos</h2>
         <p>André Silva de Queiroz</p>
       </section>
       <!-- Objetivos -->
@@ -156,6 +155,7 @@
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             ?nome_da_funcao()
           </code></pre>
+	  <p class="fragment"><a href="https://www.rdocumentation.org/" target="_blank">https://www.rdocumentation.org/</a></p>
         </section>
         <section>
           <p>A função <code>read_excel()</code> importa um arquivo <i>xlsx</i>.</p>
@@ -170,7 +170,8 @@
           print(mov_proc)
 
           mov_proc
-
+        </code></pre>
+	<pre class ="fragment"><code class="r" data-trim contenteditable spellcheck="false">
           # resumo
           summary(mov_proc)
         </code></pre>
@@ -181,7 +182,7 @@
           <h2>dplyr</h2>
           <p>A gramática da manipulação de dados</p>
           <ul>
-            <li class="fragment fade-left"><font size="6"><code>filter()</code>: corta a base a partir de um ou mais valores.</font></li>
+            <li class="fragment fade-left"><font size="6"><code>filter()</code>: filtra a base a partir de um ou mais valores.</font></li>
             <li class="fragment fade-left"><font size="6"><code>select()</code>: seleciona uma ou mais variáveis da base.</font></li>
             <li class="fragment fade-left"><font size="6"><code>mutate()</code>: modifica a base.</font></li>
             <li class="fragment fade-left"><font size="6"><code>arrange()</code>: ordena a base.</font></li>
@@ -197,10 +198,10 @@
       <section>
         <section>
           <h2><code>filter()</code></h2>
-          <p>Corta a base a partir de um ou mais valores.</p>
+          <p>Filtra a base a partir de um ou mais valores.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(grau == 2)
+              filter(grau == 2)
           </code></pre>
         </section>
         <section>
@@ -246,38 +247,54 @@
             </table>
           </font>
         </section>
-        <section>
-          <p>Filtrar a partir de mais de uma variável ou valor.</p>
+	<section>
+          <p>Filtrar a partir de condições variáveis.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(recebidos > 300)
+              filter(recebidos < mean(recebidos))
+          </code></pre>
+          <pre class="fragment fade-up"><code class="r" data-trim contenteditable spellcheck="false">
+            mov_proc %>%
+              filter(julgados > recebidos)
+          </code></pre>
+	  <pre class="fragment fade-down"><code class="r" data-trim contenteditable spellcheck="false">
+            mov_proc %>%
+              filter(periodo == max(periodo))
+          </code></pre>
+        </section>
+        <section>
+          <p>Filtrar a partir de mais de uma condição.</p>
+          <pre><code class="r" data-trim contenteditable spellcheck="false">
+            mov_proc %>%
+              filter(periodo > "2018-01-01")
 
             mov_proc %>%
-                filter(recebidos > 300) %>%
-                filter(grau != 2)
+              filter(periodo > "2018-01-01") %>%
+              filter(julgados > recebidos)
             </code></pre>
           <pre class="fragment fade-down"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(recebidos > 300, grau != 2)
+              filter(periodo > "2018-01-01", julgados > recebidos)
           </code></pre>
         </section>
         <section data-background="#017243">
-          <p>Filtre os dados das varas com menos de 100 processos pendentes.</p>
+	  <p>Filtre os dados a partir de março de 2018.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(pendentes < 100, grau == 1)
+              filter(periodo > "2018-03-01")
           </code></pre>
-          <p>Filtre os dados até março de 2017.</p>
+          <p>Filtre os dados das varas com mais de 4.000 processos pendentes no último período.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(periodo <= "2017-03-31")
+              filter(grau == 1, pendentes > 4000,
+                     periodo == max(periodo))
           </code></pre>
-          <p>Filtre os dados da Vara de Itaúna.</p>
+          <p>Filtre os dados da 3ª Vara de Jundiaí.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(sede == "Itaúna")
+              filter(sede == "Jundiaí", vt == 3)
           </code></pre>
-          <p><font size="6">Dica: use aspas (simples ou duplas) para definir expressões.</font></p>
+          <p><font size="6">Dica: use aspas (simples ou duplas) para definir valores textuais.</font></p>
         </section>
       </section>
       <!-- select -->
@@ -287,26 +304,38 @@
           <p>Seleciona uma ou mais variáveis da base.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                select(recebidos)
+              select(recebidos)
           </code></pre>
         </section>
         <section>
           <p>As funções <code>starts_with()</code> e <code>ends_with()</code> facilitam uma seleção sistemática.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                select(ends_with("sede"))
+              select(ends_with("sede"))
           </code></pre>
+	  <div class="fragment fade-down">
+	    <p>Mais opções de seletores.</p>
+            <pre><code class="r" data-trim contenteditable spellcheck="false">
+              ?tidyselect::select_helpers
+            </code></pre>
+	  </div>
         </section>
         <section data-background="#017243">
           <p>Selecione a série de processos julgados.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                select(julgados)
+              select(julgados)
           </code></pre>
           <p>Selecione o período e a série de processos pendentes.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                select(periodo, pendentes)
+              select(periodo, pendentes)
+          </code></pre>
+	  <p>Selecione os processos recebidos no 2º Grau em 2017.</p>
+          <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
+            mov_proc %>%
+              filter(grau != 1, periodo < "2018-01-01") %>%
+              select(recebidos)
           </code></pre>
         </section>
       </section>
@@ -317,23 +346,29 @@
           <p>Modifica a base.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                mutate(tx_julg = julgados / recebidos)
-
-            mov_proc %>%
-                mutate(SEDE = toupper(sede))
+              mutate(tx_julg = julgados / recebidos)
           </code></pre>
         </section>
+	<section>
+	  <p>Teste condicional.</p>
+	  <pre><code class="r" data-trim contenteditable spellcheck="false">
+            mov_proc %>%
+              mutate(status = if_else(julgados > recebidos,
+                                      "Produtiva", "Não produtiva"))
+          </code></pre>
+	</section>
         <section data-background="#017243">
           <p>Crie, em percentual, a taxa de processos julgados sobre recebidos e selecione a vara do trabalho e a variável criada.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                mutate(tx_julg = 100 * julgados / recebidos) %>%
-                select(sede, vt, tx_julg)
+              mutate(tx_julg = 100 * julgados / recebidos) %>%
+              filter(grau == 1) %>%
+              select(sede, vt, tx_julg)
           </code></pre>
           <p>Calcule a taxa de julgados sobre julgados + pendentes.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                mutate(taxa = julgados / (julgados + pendentes))
+              mutate(taxa = julgados / (julgados + pendentes))
           </code></pre>
         </section>
       </section>
@@ -344,32 +379,31 @@
           <p>Ordena a base.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                arrange(julgados)
+              arrange(julgados)
           </code></pre>
         </section>
         <section>
           <p>A função <code>desc()</code> faz o ordenamento decrescente.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                arrange(desc(recebidos))
+              arrange(desc(recebidos))
           </code></pre>
         </section>
+	<section>
+	  <p>Classificação de valores.</p>
+	  <pre><code class="r" data-trim contenteditable spellcheck="false">
+            mov_proc %>%
+              mutate(ranking = min_rank(recebidos)) %>%
+              arrange(recebidos)
+          </code></pre>
+	</section>
         <section data-background="#017243">
-          <p>Crie novamente a taxa de processos julgados sobre recebidos, selecione a vara do trabalho e a variável criada e ordene a base em ordem decrescente segundo a taxa calculada.</p>
+          <p>Crie novamente a taxa de processos julgados sobre recebidos, selecione o período, a vara do trabalho e a variável criada e ordene a base em ordem decrescente segundo a taxa calculada.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                mutate(tx_julg = julgados / recebidos) %>%
-                select(sede, vt, tx_julg) %>%
-                arrange(desc(tx_julg))
-          </code></pre>
-        </section>
-        <section>
-          <p>Para tornar as mudanças permanentes, sobrescreva a base de dados com o operador <code>&lt;-</code>.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            mov_proc <- mov_proc %>%
-                mutate(tx_julg = julgados / recebidos) %>%
-                select(sede, vt, tx_julg) %>%
-                arrange(desc(tx_julg))
+              mutate(tx_julg = julgados / recebidos) %>%
+              select(periodo, sede, vt, tx_julg) %>%
+              arrange(desc(tx_julg))
           </code></pre>
         </section>
       </section>
@@ -380,7 +414,7 @@
           <p>Calcula estatísticas.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                summarise(media_julg = mean(julgados))
+              summarise(media_julg = mean(julgados))
           </code></pre>
         </section>
         <section>
@@ -388,15 +422,19 @@
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             # média
             mov_proc %>%
-                summarise(media_julg = mean(julgados))
+              summarise(media_julg = mean(julgados))
 
             # soma
             mov_proc %>%
-                summarise(media_julg = sum(julgados))
+              summarise(soma_julg = sum(julgados))
 
             # contagem
             mov_proc %>%
-                summarise(total = n())
+              summarise(total = n())
+
+            # contagem distinta
+            mov_proc %>%
+              summarise(total = n_distinct(sede, vt))
           </code></pre>
           <p><font size="6">Outras funções: <code>min()</code>, <code>max()</code>, <code>median()</code>, <code>var()</code>, <code>sd()</code>, ...</font></p>
         </section>
@@ -404,10 +442,10 @@
           <p>Calcule a média de processos recebidos, julgados e pendentes das Varas do Trabalho.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(grau == 1) %>%
-                summarise(m_rec = mean(recebidos),
-                          m_julg = mean(julgados),
-                          m_pend = mean(pendentes))
+              filter(grau == 1) %>%
+              summarise(m_rec = mean(recebidos),
+                        m_julg = mean(julgados),
+                        m_pend = mean(pendentes))
           </code></pre>
         </section>
       </section>
@@ -418,23 +456,33 @@
           <p>Agrupa a base a partir de uma ou mais variáveis.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                group_by(grau) %>%
-                summarise(media_julg = mean(julgados))
-
+              group_by(grau) %>%
+              summarise(media_julg = mean(julgados))
+          </code></pre>
+          <pre class="fragment"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                group_by(grau, periodo) %>%
-                summarise(media_julg = mean(julgados))
+              group_by(grau, periodo) %>%
+              summarise(media_julg = mean(julgados))
           </code></pre>
         </section>
         <section data-background="#017243">
           <p>Calcule a média de processos recebidos, julgados e pendentes das Varas do Trabalho por mês.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(grau == 1) %>%
-                group_by(periodo) %>%
-                summarise(m_rec = mean(recebidos),
-                          m_julg = mean(julgados),
-                          m_pend = mean(pendentes))
+              filter(grau == 1) %>%
+              group_by(periodo) %>%
+              summarise(m_rec = mean(recebidos),
+                        m_julg = mean(julgados),
+                        m_pend = mean(pendentes))
+          </code></pre>
+	  <p>Calcule a taxa de julgamento sobre recebidos para as duas instâncias em 2017.</p>
+          <pre class="fragment fade-left"><code class="r" data-trim contenteditable spellcheck="false">
+            mov_proc %>%
+              filter(periodo < "2018-01-01") %>%
+              group_by(grau) %>%
+              summarise(rec = sum(recebidos),
+                        julg = sum(julgados)) %>%
+              mutate(tx = julg / rec)
           </code></pre>
         </section>
       </section>
@@ -443,11 +491,11 @@
         <p>Qual o resultado da sequência de comandos seguinte?</p>
         <pre><code class="r" data-trim contenteditable spellcheck="false">
           mov_proc %>%
-              select(sede, vt) %>%
-              distinct() %>%
-              group_by(sede) %>%
-              summarise(x = n()) %>%
-              arrange(desc(x))
+            select(sede, vt) %>%
+            distinct() %>%
+            group_by(sede) %>%
+            summarise(x = n()) %>%
+            arrange(desc(x))
         </code></pre>
       </section>
       <!-- base temporal -->
@@ -463,73 +511,74 @@
           <p>Resumo da situação dos processos.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             temporal %>%
-                group_by(periodo, status) %>%
-                summarise(total = n())
+              group_by(periodo, status) %>%
+              summarise(total = n())
           </code></pre>
         </section>
         <section>
           <p>Criar variável "auxiliar".</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             temporal %>%
-                group_by(periodo, status) %>%
-                summarise(total = n()) %>%
-                mutate(mes = ifelse(periodo == "2017-06-30",
-                                    "atual", "anterior"))
+              group_by(periodo, status) %>%
+              summarise(total = n()) %>%
+              ungroup() %>%
+              mutate(mes = if_else(periodo == max(periodo),
+                                   "atual", "ant"))
           </code></pre>
         </section>
         <section>
           <p>Eliminar a variável período.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             temporal %>%
-                group_by(periodo, status) %>%
-                summarise(total = n()) %>%
-                mutate(mes = ifelse(periodo == "2017-06-30",
-                                    "atual", "anterior")) %>%
-                ungroup() %>%
-                select(-periodo)
+              group_by(periodo, status) %>%
+              summarise(total = n()) %>%
+              ungroup() %>%
+              mutate(mes = if_else(periodo == max(periodo),
+                                   "atual", "ant")) %>%
+              select(-periodo)
           </code></pre>
         </section>
         <section>
           <p>Unir variáveis em uma só.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             temporal %>%
-                group_by(periodo, status) %>%
-                summarise(total = n()) %>%
-                mutate(mes = ifelse(periodo == "2017-06-30",
-                                    "atual", "anterior")) %>%
-                ungroup() %>%
-                select(-periodo) %>%
-                unite(status_mes, status, mes)
+              group_by(periodo, status) %>%
+              summarise(total = n()) %>%
+              ungroup() %>%
+              mutate(mes = if_else(periodo == max(periodo),
+                                   "atual", "ant")) %>%
+              select(-periodo) %>%
+              unite(status_mes, status, mes)
           </code></pre>
         </section>
         <section>
           <p>Espalhar base de dados.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             temporal %>%
-                group_by(periodo, status) %>%
-                summarise(total = n()) %>%
-                mutate(mes = ifelse(periodo == "2017-06-30",
-                                    "atual", "anterior")) %>%
-                ungroup() %>%
-                select(-periodo) %>%
-                unite(status_mes, status, mes) %>%
-                spread(status_mes, total)
+              group_by(periodo, status) %>%
+              summarise(total = n()) %>%
+              ungroup() %>%
+              mutate(mes = if_else(periodo == max(periodo),
+                                   "atual", "ant")) %>%
+              select(-periodo) %>%
+              unite(status_mes, status, mes) %>%
+              spread(status_mes, total)
           </code></pre>
         </section>
         <section>
           <p>Calcular diferenças.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             temporal %>%
-                group_by(periodo, status) %>%
-                summarise(total = n()) %>%
-                mutate(mes = ifelse(periodo == "2017-06-30",
-                                    "atual", "anterior")) %>%
-                ungroup() %>%
-                select(-periodo) %>%
-                unite(status_mes, status, mes) %>%
-                spread(status_mes, total) %>%
-                mutate(saldo_esperado = saldo_anterior + entrada_atual - saida_atual,
-                       diferenca = saldo_esperado - saldo_atual)
+              group_by(periodo, status) %>%
+              summarise(total = n()) %>%
+              ungroup() %>%
+              mutate(mes = if_else(periodo == max(periodo),
+                                   "atual", "anterior")) %>%
+              select(-periodo) %>%
+              unite(status_mes, status, mes) %>%
+              spread(status_mes, total) %>%
+              mutate(saldo_esp = saldo_ant + entrada_atual - saida_atual,
+                     diferenca = saldo_esp - saldo_atual)
           </code></pre>
           <p class="fragment">E se quisermos saber por magistrado, e por origem do processo?</p>
         </section>
@@ -537,17 +586,17 @@
           <p>Substituir valores ausentes por zero.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             temporal %>%
-                group_by(magistrado, periodo, status) %>%
-                summarise(total = n()) %>%
-                mutate(mes = ifelse(periodo == "2017-06-30",
-                                    "atual", "anterior")) %>%
-                ungroup() %>%
-                select(-periodo) %>%
-                unite(status_mes, status, mes) %>%
-                spread(status_mes, total) %>%
-                mutate_if(is.integer, funs(ifelse(is.na(.), 0, .))) %>%
-                mutate(saldo_esperado = saldo_anterior + entrada_atual - saida_atual,
-                       diferenca = saldo_esperado - saldo_atual)
+              group_by(periodo, status) %>%
+              summarise(total = n()) %>%
+              ungroup() %>%
+              mutate(mes = if_else(periodo == max(periodo),
+                                   "atual", "anterior")) %>%
+              select(-periodo) %>%
+              unite(status_mes, status, mes) %>%
+              spread(status_mes, total) %>%
+              mutate_if(is.integer, funs(ifelse(is.na(.), 0, .))) %>%
+              mutate(saldo_esp = saldo_ant + entrada_atual - saida_atual,
+                     diferenca = saldo_esp - saldo_atual)
           </code></pre>
         </section>
       </section>
@@ -556,56 +605,30 @@
           <h2>Recapitulando</h2>
           <ul>
             <font size="6">
-              <li>Determine as 10 varas do trabalho que tiveram a maior taxa de julgamento acumulada no 1º semestre.</li>
-              <li>Determine a taxa de julgamento no 1º e 2º trimestre para as duas instâncias.</li>
-              <li>Determine os 10 magistrados que possuem menos processos pendentes no final do 1º semestre.</li>
-              <li>Determine os 10 magistrados que possuem mais processos com o prazo vencido no final do 1º semestre.</li>
+              <li>Determine as 10 varas do trabalho que tiveram a maior taxa de julgamento acumulada em 2018.</li>
+              <li>Determine a soma dos processos recebidos no 1º Grau em 2017 por sede de jurisdição.</li>
             </font>
           </ul>
         </section>
         <section data-background="#017243">
-          <p>Determine as 10 varas do trabalho que tiveram a maior taxa de julgamento acumulada no 1º semestre.</p>
+          <p>Determine as 10 varas do trabalho que tiveram a maior taxa de julgamento acumulada em 2018.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(grau == 1) %>%
-                group_by(sede, vt) %>%
-                summarise(julgados = sum(julgados),
-                          recebidos = sum(recebidos),
-                          tx_julg = julgados / recebidos) %>%
-                arrange(desc(tx_julg))
+              filter(grau == 1, periodo > "2018-01-01") %>%
+              group_by(sede, vt) %>%
+              summarise(julgados = sum(julgados),
+                        recebidos = sum(recebidos),
+                        tx_julg = julgados / recebidos) %>%
+              arrange(desc(tx_julg))
           </code></pre>
         </section>
         <section data-background="#017243">
-          <p>Determine a taxa de julgamento no 1º e 2º trimestre para as duas instâncias.</p>
+          <p>Determine a soma dos processos recebidos no 1º Grau em 2017 por sede de jurisdição.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(grau == 1) %>%
-                group_by(sede, vt) %>%
-                summarise(julgados = sum(julgados),
-                          recebidos = sum(recebidos),
-                          tx_julg = julgados / recebidos) %>%
-                arrange(desc(tx_julg))
-          </code></pre>
-        </section>
-        <section data-background="#017243">
-          <p>Determine os 10 magistrados que possuem menos processos pendentes no final do 1º semestre.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            temporal %>%
-                filter(status == "saldo", periodo == max(periodo)) %>%
-                group_by(magistrado) %>%
-                summarize(pendentes = n()) %>%
-                arrange(pendentes)
-          </code></pre>
-        </section>
-        <section data-background="#017243">
-          <p>Determine os 10 magistrados que possuem mais processos com o prazo vencido no final do 1º semestre.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            temporal %>%
-                filter(item == 2160 | item == 92160,
-                       periodo == max(periodo)) %>%
-                group_by(magistrado) %>%
-                summarise(pendentes = n()) %>%
-                arrange(desc(pendentes))
+              filter(grau == 1, periodo < "2018-01-01") %>%
+              group_by(sede) %>%
+              summarise(recebidos = sum(recebidos))
           </code></pre>
         </section>
       </section>
@@ -1414,9 +1437,9 @@
       <section>
         <h2>Considerações Finais</h2>
         <ul>
-          <li>Exploração e visualização de dados: <a href="http://r4ds.had.co.nz/">R for Data Science</a>.</li>
-          <li>Relatórios dinâmicos: <a href="https://yihui.name/knitr/">knitr</a>.</li>
-          <li>Dicas e novidades de R: <a href="https://www.r-bloggers.com/">R-bloggers</a>.</li>
+          <li>Exploração e visualização de dados: <a href="http://r4ds.had.co.nz/" target="_blank">R for Data Science</a>.</li>
+          <li>Relatórios dinâmicos: <a href="https://yihui.name/knitr/" target="_blank">knitr</a>.</li>
+          <li>Dicas e novidades de R: <a href="https://www.r-bloggers.com/" target="_blank">R-bloggers</a>.</li>
         </ul>
       </section>
     </div>
