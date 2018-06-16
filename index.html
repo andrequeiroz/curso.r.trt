@@ -29,7 +29,7 @@
       <!-- Objetivos -->
       <section>
         <h2>O que iremos fazer?</h2>
-        <p class="fragment fade-up">Produzir relatórios estatísticos automáticos.</p>
+        <p class="fragment fade-up">Desenvolver um fluxo de trabalho no R.</p>
         <ul>
           <li class="fragment fade-left">Importar dados.</li>
           <li class="fragment fade-left">Explorar e produzir estatísticas.</li>
@@ -156,12 +156,6 @@
             ?nome_da_funcao()
           </code></pre>
 	  <p class="fragment"><a href="https://www.rdocumentation.org/" target="_blank">https://www.rdocumentation.org/</a></p>
-        </section>
-        <section>
-          <p>A função <code>read_excel()</code> importa um arquivo <i>xlsx</i>.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            mov_proc <- readxl::read_excel("movimentacao.xlsx")
-          </code></pre>
         </section>
       </section>
       <section>
@@ -573,12 +567,12 @@
               summarise(total = n()) %>%
               ungroup() %>%
               mutate(mes = if_else(periodo == max(periodo),
-                                   "atual", "anterior")) %>%
+                                   "atual", "ant")) %>%
               select(-periodo) %>%
               unite(status_mes, status, mes) %>%
               spread(status_mes, total) %>%
               mutate(saldo_esp = saldo_ant + entrada_atual - saida_atual,
-                     diferenca = saldo_esp - saldo_atual)
+                     diferenca = saldo_atual - saldo_esp)
           </code></pre>
           <p class="fragment">E se quisermos saber por magistrado, e por origem do processo?</p>
         </section>
@@ -590,13 +584,13 @@
               summarise(total = n()) %>%
               ungroup() %>%
               mutate(mes = if_else(periodo == max(periodo),
-                                   "atual", "anterior")) %>%
+                                   "atual", "ant")) %>%
               select(-periodo) %>%
               unite(status_mes, status, mes) %>%
               spread(status_mes, total) %>%
               mutate_if(is.integer, funs(ifelse(is.na(.), 0, .))) %>%
               mutate(saldo_esp = saldo_ant + entrada_atual - saida_atual,
-                     diferenca = saldo_esp - saldo_atual)
+                     diferenca = saldo_atual - saldo_esp)
           </code></pre>
         </section>
       </section>
@@ -646,32 +640,15 @@
             # prazo
             prazo <- read_tsv("prazo.txt")
           </code></pre>
-          <p class="fragment">Observe a variável código da classe.</p>
-        </section>
-        <section>
-          <p>Informações de regionalização da base de dados no R.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            prazo <- read_tsv("prazo.txt",
-                              locale = locale(decimal_mark = ",",
-                                              grouping_mark = "."))
-          </code></pre>
-          <p class="fragment">Observe as variáveis inicio e fim.</p>
+	  <p class="fragment">Observe as variáveis inicio e fim.</p>
         </section>
         <section>
           <p>Utilizar a biblioteca lubridate.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             library(lubridate)
 
-            prazo <- read_tsv("prazo.txt",
-                              locale = locale(decimal_mark = ",",
-                                              grouping_mark = ".")) %>%
-                         mutate(inicio = dmy(inicio), fim = dmy(fim))
-          </code></pre>
-        </section>
-        <section>
-          <p>Carregar também a base de movimentação processual.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            mov_proc <- read_tsv("movimentacao.txt")
+            prazo <- read_tsv("prazo.txt") %>%
+                       mutate(inicio = dmy(inicio), fim = dmy(fim))
           </code></pre>
         </section>
       </section>
@@ -698,34 +675,34 @@
           <p>Qual o resultado da sequência?</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 1) %>%
-                mutate(dias = fim - inicio) %>%
-                group_by(periodo) %>%
-                summarise(total = n(), prazo = mean(dias))
+              filter(grau == 1) %>%
+              mutate(dias = fim - inicio) %>%
+              group_by(periodo) %>%
+              summarise(total = n(), prazo = mean(dias))
           </code></pre>
         </section>
         <section>
           <p>Mapeamento através de pontos.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 1) %>%
-                mutate(dias = fim - inicio) %>%
-                group_by(periodo) %>%
-                summarise(total = n(), prazo = mean(dias)) %>%
-                ggplot(mapping = aes(x = total, y = prazo)) +
-                geom_point()
+              filter(grau == 1) %>%
+              mutate(dias = fim - inicio) %>%
+              group_by(periodo) %>%
+              summarise(total = n(), prazo = mean(dias)) %>%
+              ggplot(mapping = aes(x = total, y = prazo)) +
+              geom_point()
           </code></pre>
         </section>
         <section data-background="#017243">
           <p>Faça um gráfico de pontos com a média de dias dos processos em função do período das remessas para os dados de 1º Grau.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 1) %>%
-                mutate(dias = fim - inicio) %>%
-                group_by(periodo) %>%
-                summarise(total = n(), prazo = mean(dias)) %>%
-                ggplot(mapping = aes(x = periodo, y = prazo)) +
-                geom_point()
+              filter(grau == 1) %>%
+              mutate(dias = fim - inicio) %>%
+              group_by(periodo) %>%
+              summarise(total = n(), prazo = mean(dias)) %>%
+              ggplot(mapping = aes(x = periodo, y = prazo)) +
+              geom_point()
           </code></pre>
           <pre class="fragment fade-down"><code class="r" data-trim contenteditable spellcheck="false">
             Sys.setlocale("LC_TIME", "Portuguese_Brazil.1252")
@@ -735,15 +712,15 @@
           <p>Faça um gráfico de pontos com os procesos julgados em função dos processos recebidos.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                ggplot(mapping = aes(x = recebidos, y = julgados)) +
-                geom_point()
+              ggplot(mapping = aes(x = recebidos, y = julgados)) +
+              geom_point()
           </code></pre>
           <p class="fragment fade-right">Agora refaça o gráfico mostrando apenas os dados de 1º Grau.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(grau == 1) %>%
-                ggplot(mapping = aes(x = recebidos, y = julgados)) +
-                geom_point()
+              filter(grau == 1) %>%
+              ggplot(mapping = aes(x = recebidos, y = julgados)) +
+              geom_point()
           </code></pre>
         </section>
       </section>
@@ -757,85 +734,102 @@
           <p>Mudança da geometria: ponto &rarr; linha.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 1) %>%
-                mutate(dias = fim - inicio) %>%
-                group_by(periodo) %>%
-                summarise(total = n(), prazo = mean(dias)) %>%
-                ggplot(mapping = aes(x = total, y = prazo)) +
-                geom_line()
+              filter(grau == 1) %>%
+              mutate(dias = fim - inicio) %>%
+              group_by(periodo) %>%
+              summarise(total = n(), prazo = mean(dias)) %>%
+              ggplot(mapping = aes(x = total, y = prazo)) +
+              geom_line()
           </code></pre>
         </section>
         <section data-background="#017243">
           <p>Faça um gráfico de pontos <u>unidos por uma linha</u> com a média de dias dos processos em função do período das remessas para os dados de 1º Grau.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 1) %>%
-                mutate(dias = fim - inicio) %>%
-                group_by(periodo) %>%
-                summarise(total = n(), prazo = mean(dias)) %>%
-                ggplot(mapping = aes(x = periodo, y = prazo)) +
-                geom_point() +
-                geom_line()
+              filter(grau == 1) %>%
+              mutate(dias = fim - inicio) %>%
+              group_by(periodo) %>%
+              summarise(total = n(), prazo = mean(dias)) %>%
+              ggplot(mapping = aes(x = periodo, y = prazo)) +
+              geom_point() +
+              geom_line()
           </code></pre>
         </section>
         <section>
           <p>Novo elemento estético: cor.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                group_by(grau, periodo) %>%
-                summarise(total = n(), prazo = mean(dias)) %>%
-                ggplot(mapping = aes(x = periodo, y = prazo,
-                       color = factor(grau))) +
-                geom_point() +
-                geom_line()
+              mutate(dias = fim - inicio) %>%
+              group_by(grau, periodo) %>%
+              summarise(total = n(), prazo = mean(dias)) %>%
+              ggplot(mapping = aes(x = periodo, y = prazo,
+                                   color = factor(grau))) +
+              geom_point() +
+              geom_line()
           </code></pre>
         </section>
         <section>
           <p>Rótulos e títulos.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                group_by(grau, periodo) %>%
-                summarise(total = n(), prazo = mean(dias)) %>%
-                ggplot(mapping = aes(x = periodo, y = prazo,
-                       color = factor(grau))) +
-                geom_point() +
-                geom_line() +
-                labs(x = "Período", y = "Dias", color = "Grau",
-                     title = "Duração média dos processos")
+              mutate(dias = fim - inicio) %>%
+              group_by(grau, periodo) %>%
+              summarise(total = n(), prazo = mean(dias)) %>%
+              ggplot(mapping = aes(x = periodo, y = prazo,
+                     color = factor(grau))) +
+              geom_point() +
+              geom_line() +
+              labs(x = "Período", y = "Dias", color = "Grau",
+                   title = "Duração média dos processos")
           </code></pre>
           <pre class="fragment fade-up"><code class="r" data-trim contenteditable spellcheck="false">
-            scale_colour_hue(labels = c("1º", "2º"))
+            scale_color_hue(labels = c("1º", "2º"))
           </code></pre>
         </section>
         <section data-background="#017243">
-          <p>Faça um gráfico de linha com a média de dias dos processos em função do período das remessas para os dados das varas de Uberlândia.</p>
+          <p>Faça um gráfico de linha com a média de dias dos processos em função do período das remessas para os dados das varas de Ribeirão Preto.</p>
           <pre class="fragment fade-left"><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 1, sede == "Uberlândia") %>%
-                mutate(dias = fim - inicio) %>%
-                group_by(vt, periodo) %>%
-                summarise(total = n(), prazo = mean(dias)) %>%
-                ggplot(mapping = aes(x = periodo, y = prazo,
-                                     colour = factor(vt))) +
-                geom_line() +
-                labs(x = "Período", y = "Dias",
-                     title = "Duração média dos processos",
-                     color = "Varas de\nUberlândia")
+              filter(grau == 1, sede == "Ribeirão Preto") %>%
+              mutate(dias = fim - inicio) %>%
+              group_by(periodo, vt) %>%
+              summarise(total = n(), prazo = mean(dias)) %>%
+              ggplot(mapping = aes(x = periodo, y = prazo,
+                                   color = factor(vt))) +
+              geom_line() +
+              labs(x = "Período", y = "Dias",
+                   title = "Duração média dos processos",
+                   color = "Varas de\nRibeirão Preto")
           </code></pre>
         </section>
         <section data-background="#017243">
           <p>Faça um gráfico de linha com os processos recebidos por período no 1º e 2º Graus.</p>
           <pre class="fragment fade-left"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                group_by(periodo, grau) %>%
-                summarise(recebidos = sum(recebidos)) %>%
-                ggplot(mapping = aes(x = periodo, y = recebidos,
-                                     color = factor(grau))) +
-                geom_line()
+              group_by(periodo, grau) %>%
+              summarise(recebidos = sum(recebidos)) %>%
+              ggplot(mapping = aes(x = periodo, y = recebidos,
+                                   color = factor(grau))) +
+              geom_line()
           </code></pre>
         </section>
+	<section>
+	  <p>Mude <code>geom_line()</code> para <code>geom_smooth()</code>.</p>
+	  <pre><code class="r" data-trim contenteditable spellcheck="false">
+            mov_proc %>%
+              group_by(periodo, grau) %>%
+              summarise(recebidos = sum(recebidos)) %>%
+              ggplot(mapping = aes(x = periodo, y = recebidos,
+                                   color = factor(grau))) +
+              geom_smooth()
+          </code></pre>
+	  <div class="fragment fade-right">
+	    <p>Opções de suavizações.</p>
+	    <pre><code class="r" data-trim contenteditable spellcheck="false">
+              ?geom_smooth()
+            </code></pre>
+	  </div>
+	</section>
       </section>
       <!-- geom_bar -->
       <section>
@@ -847,33 +841,33 @@
           <p>Essa função faz a contagem automaticamente.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 2) %>%
-                ggplot(mapping = aes(x = periodo)) +
-                geom_bar()
+              filter(grau == 2) %>%
+              ggplot(mapping = aes(x = periodo)) +
+              geom_bar()
           </code></pre>
         </section>
         <section>
           <p>Para visualizar dados já calculados use <code>geom_col()</code>.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 2) %>%
-                group_by(periodo) %>%
-                summarise(total = n()) %>%
-                ggplot(mapping = aes(x = periodo, y = total)) +
-                geom_col()
+              filter(grau == 2) %>%
+              group_by(periodo) %>%
+              summarise(total = n()) %>%
+              ggplot(mapping = aes(x = periodo, y = total)) +
+              geom_col()
           </code></pre>
         </section>
         <section data-background="#017243">
           <p>Faça um gráfico de barras com a contagem de processos por classe processual de 2º Grau que tiveram no máximo 300 registros.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 2) %>%
-                group_by(classe) %>%
-                summarise(total = n()) %>%
-                filter(total <= 300) %>%
-                ggplot(mapping = aes(x = classe, y = total)) +
-                geom_col(fill = "steelblue") +
-                coord_flip()
+              filter(grau == 2) %>%
+              group_by(sigla_classe) %>%
+              summarise(total = n()) %>%
+              filter(total <= 300) %>%
+              ggplot(mapping = aes(x = sigla_classe, y = total)) +
+              geom_col(fill = "steelblue") +
+              coord_flip()
           </code></pre>
           <div class="fragment fade-up">
             <p>Mais opções de cores.</p>
@@ -886,12 +880,13 @@
           <p>Novo elemento estético: preenchimento.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(grau == 2, sigla_classe %in% c("RO", "ROPS")) %>%
-                group_by(periodo, classe) %>%
-                summarise(dias = mean(dias)) %>%
-                ggplot(mapping = aes(x = periodo, y = dias, fill = classe)) +
-                geom_col()
+              mutate(dias = fim - inicio) %>%
+              filter(grau == 2, sigla_classe %in% c("RO", "ROPS")) %>%
+              group_by(periodo, sigla_classe) %>%
+              summarise(dias = mean(dias)) %>%
+              ggplot(mapping = aes(x = periodo, y = dias,
+                                   fill = sigla_classe)) +
+              geom_col()
           </code></pre>
           <div class="fragment fade-up">
             <p>Posicionamento lado a lado das barras.</p>
@@ -904,22 +899,23 @@
           <p>Qual o resultado da sequência de comandos seguinte?</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 2) %>%
-                group_by(classe) %>%
-                summarise(total = n()) %>%
-                filter(total > 300)
+              filter(grau == 2) %>%
+              group_by(sigla_classe) %>%
+              summarise(total = n()) %>%
+              filter(total > 300)
           </code></pre>
         </section>
         <section>
           <p>Mapeamento transferido: x &rarr; preenchimento.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                filter(grau == 2) %>%
-                group_by(classe) %>%
-                summarise(total = n()) %>%
-                filter(total > 300) %>%
-                ggplot(mapping = aes(x = "", y = total, fill = classe)) +
-                geom_col()
+              filter(grau == 2) %>%
+              group_by(sigla_classe) %>%
+              summarise(total = n()) %>%
+              filter(total > 300) %>%
+              ggplot(mapping = aes(x = "", y = total,
+                                   fill = sigla_classe)) +
+              geom_col()
           </code></pre>
           <div class="fragment fade-up">
             <p>Largura de preenchimento em 100%.</p>
@@ -938,11 +934,11 @@
           <p>Faça um gráfico de barras com os processos recebidos nas varas do trabalho por período.</p>
           <pre class="fragment fade-left"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(grau == 1) %>%
-                group_by(periodo) %>%
-                summarise(recebidos = sum(recebidos)) %>%
-                ggplot(mapping = aes(x = periodo, y = recebidos)) +
-                geom_col()
+              filter(grau == 1) %>%
+              group_by(periodo) %>%
+              summarise(recebidos = sum(recebidos)) %>%
+              ggplot(mapping = aes(x = periodo, y = recebidos)) +
+              geom_col()
           </code></pre>
         </section>
       </section>
@@ -956,20 +952,26 @@
           <p>Histograma padrão.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(grau == 1, dias < 365) %>%
-                ggplot(mapping = aes(x = dias)) +
-                geom_histogram()
+              mutate(dias = fim - inicio) %>%
+              filter(grau == 1, dias < 365) %>%
+              ggplot(mapping = aes(x = dias)) +
+              geom_histogram()
           </code></pre>
+	  <div class="fragment fade-down">
+	    <p>Cores das bordas.</p>
+            <pre><code class="r" data-trim contenteditable spellcheck="false">
+              geom_histogram(color = "white")
+            </code></pre>
+	  </div>
         </section>
         <section data-background="#017243">
           <p>Faça um histograma com a duração dos processos de 1º e 2º Graus mapeadas separadamente pelo <u>preenchimento</u>. Use apenas os processos que duraram menos de um ano.</p>
           <pre class="fragment fade-right"><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(dias < 365) %>%
-                ggplot(mapping = aes(x = dias, fill = factor(grau))) +
-                geom_histogram()
+              mutate(dias = fim - inicio) %>%
+              filter(dias < 365) %>%
+              ggplot(mapping = aes(x = dias, fill = factor(grau))) +
+              geom_histogram()
           </code></pre>
           <p>Dica: lembre-se que grau é uma variável do tipo inteira. Use <code>factor()</code> para transforma-la em categórica.</p>
         </section>
@@ -977,10 +979,10 @@
           <p>Mudança da geometria: histograma &rarr; densidade.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(dias < 365) %>%
-                ggplot(mapping = aes(x = dias, fill = factor(grau))) +
-                geom_density()
+              mutate(dias = fim - inicio) %>%
+              filter(dias < 365) %>%
+              ggplot(mapping = aes(x = dias, fill = factor(grau))) +
+              geom_density()
           </code></pre>
           <div class="fragment fade-down">
             <p>Parâmetro de transparência.</p>
@@ -990,12 +992,12 @@
           </div>
         </section>
         <section data-background="#017243">
-          <p>Faça um gráfico de densidade comparado os processos recebidos nas varas de Belo Horizonte no 1º semestre.</p>
+          <p>Faça um gráfico de densidade comparado os processos recebidos nas varas de Campinas em 2018.</p>
           <pre class="fragment fade-left"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(sede == "Belo Horizonte") %>%
-                ggplot(mapping = aes(x = recebidos, fill = factor(vt))) +
-                geom_density(alpha = 0.4)
+              filter(sede == "Campinas", year(periodo) == 2018) %>%
+              ggplot(mapping = aes(x = recebidos, fill = factor(vt))) +
+              geom_density(alpha = 0.4)
           </code></pre>
           <p class="fragment">Teste também com julgados e com a taxa de julgamento.</p>
         </section>
@@ -1010,42 +1012,45 @@
           <p>Diagrama de caixas por períodos.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(grau == 1, sede == "Divinópolis") %>%
-                ggplot(mapping = aes(x = factor(periodo), y = dias)) +
-                geom_boxplot()
+              mutate(dias = fim - inicio) %>%
+              filter(grau == 1, sede == "Araraquara",
+                     year(periodo) == 2018) %>%
+              ggplot(mapping = aes(x = factor(periodo), y = dias)) +
+              geom_boxplot()
           </code></pre>
         </section>
         <section>
           <p>Mapeamento da vara no preenchimento.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(grau == 1, sede == "Divinópolis") %>%
-                ggplot(mapping = aes(x = factor(periodo), y = dias,
-                                     fill = factor(vt))) +
-                geom_boxplot()
+              mutate(dias = fim - inicio) %>%
+              filter(grau == 1, sede == "Araraquara",
+                     year(periodo) == 2018) %>%
+              ggplot(mapping = aes(x = factor(periodo), y = dias,
+                                   fill = factor(vt))) +
+              geom_boxplot()
           </code></pre>
         </section>
         <section data-background="#017243">
-          <p>Faça um diagrama de caixas com a duração dos processos das varas de Divinópolis separadas por magistrados.</p>
+          <p>Faça um diagrama de caixas com as durações dos processos das varas de Campinas separadas por classe.</p>
           <pre class="fragment fade-down"><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(grau == 1, sede == "Divinópolis") %>%
-                ggplot(mapping = aes(x = magistrado, y = dias,
-                                     fill = magistrado)) +
-                geom_boxplot() +
-                coord_flip()
+              mutate(dias = fim - inicio) %>%
+              filter(grau == 1, sede == "Campinas") %>%
+              ggplot(mapping = aes(x = sigla_classe, y = dias,
+                                   fill = sigla_classe)) +
+              geom_boxplot() +
+              coord_flip()
           </code></pre>
         </section>
         <section data-background="#017243">
-          <p>Faça um diagrama de caixas com os processos recebidos nas varas por mês no 1º semestre.</p>
+          <p>Faça um diagrama de caixas com os processos recebidos nas varas por mês em 2018.</p>
           <pre class="fragment fade-left"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(grau == 1) %>%
-                ggplot(mapping = aes(x = factor(periodo), y = recebidos)) +
-                geom_boxplot()
+              filter(grau == 1, year(periodo) == 2018) %>%
+              ggplot(mapping = aes(x = factor(periodo),
+                                   y = recebidos)) +
+              geom_boxplot()
           </code></pre>
         </section>
       </section>
@@ -1058,44 +1063,46 @@
         <section>
           <p>Carregar a biblioteca no R.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
-            # bibliotecas maptools e rgeos devem estar instaladas no sistema
+            # bibliotecas maptools e rgeos
+            # devem estar instaladas no sistema
             library(rgdal)
           </code></pre>
         </section>
         <section>
           <p>Carregar as malhas digitais.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
-            malha <- readOGR(dsn = "./malha.jt", layer = "trt3") %>%
-                fortify(region = "cd_geocmu") %>%
-                rename(x = long, y = lat)
+            malha_trt <- readOGR(dsn = "./malhas/trt",
+                                 layer = "trt15") %>%
+              fortify(region = "cd_geocmu") %>%
+              rename(x = long, y = lat)
           </code></pre>
         </section>
         <section>
           <p>Mapa padrão.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(grau == 1) %>%
-                group_by(cod_sede) %>%
-                summarise(total = n()) %>%
-                ggplot(mapping = aes(map_id = cod_sede, fill = total)) +
-                geom_map(map = malha) +
-                expand_limits(malha)
+              mutate(dias = fim - inicio) %>%
+              filter(grau == 1) %>%
+              group_by(cod_sede) %>%
+              summarise(total = n()) %>%
+              ggplot(mapping = aes(map_id = cod_sede, fill = total)) +
+              geom_map(map = malha_trt) +
+              expand_limits(malha_trt)
           </code></pre>
         </section>
         <section>
           <p>Cores personalizadas.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(grau == 1, sede != "Belo Horizonte") %>%
-                group_by(cod_sede) %>%
-                summarise(total = n()) %>%
-                ggplot(mapping = aes(map_id = cod_sede, fill = total)) +
-                geom_map(map = malha) +
-                expand_limits(malha) +
-                scale_fill_gradient(low = "wheat", high = "red",
-                                    name = "Quantidade\nde processos")
+              mutate(dias = fim - inicio) %>%
+              filter(grau == 1, sede != "Campinas") %>%
+              group_by(cod_sede) %>%
+              summarise(total = n()) %>%
+              ggplot(mapping = aes(map_id = cod_sede, fill = total)) +
+              geom_map(map = malha_trt) +
+              expand_limits(malha_trt) +
+              scale_fill_gradient(low = "wheat", high = "red",
+                                  name = "Quantidade\nde processos")
           </code></pre>
           <div class="fragment fade-down">
             <p>Escala com cor intermediária.</p>
@@ -1108,55 +1115,106 @@
           <p>Cores personalizadas.</p>
           <pre><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(grau == 1, sede != "Belo Horizonte") %>%
-                group_by(cod_sede) %>%
-                summarise(total = n()) %>%
-                ggplot(mapping = aes(map_id = cod_sede, fill = total)) +
-                geom_map(map = malha) +
-                expand_limits(malha) +
-                scale_fill_gradient(low = "wheat", high = "red",
-                                    name = "Quantidade\nde processos") +
-                labs(title = "Processos baixados no 1º Grau, exceto BH.") +
-                theme(line = element_blank(), rect = element_blank(),
-                      axis.text = element_blank(),
-                      axis.title = element_blank()) +
-                coord_fixed()
+              mutate(dias = fim - inicio) %>%
+              filter(grau == 1, sede != "Campinas") %>%
+              group_by(cod_sede) %>%
+              summarise(total = n()) %>%
+              ggplot(mapping = aes(map_id = cod_sede, fill = total)) +
+              geom_map(map = malha_trt) +
+              expand_limits(malha_trt) +
+              scale_fill_gradient(low = "wheat", high = "red",
+                                  name = "Quantidade\nde processos") +
+              labs(title = "Processos baixados no 1º Grau.",
+                   subtitle = "Exceto Campinas.") +
+              theme(line = element_blank(), rect = element_blank(),
+                    axis.text = element_blank(),
+                    axis.title = element_blank()) +
+              coord_fixed()
           </code></pre>
         </section>
         <section data-background="#017243">
           <p>Faça um mapa com a média de duração dos processos por município sede de vara.</p>
           <pre class="fragment fade-down"><code class="r" data-trim contenteditable spellcheck="false">
             prazo %>%
-                mutate(dias = fim - inicio) %>%
-                filter(grau == 1) %>%
-                group_by(cod_sede) %>%
-                summarise(media = mean(dias)) %>%
-                ggplot(mapping = aes(map_id = cod_sede,
-                                     fill = as.numeric(media))) +
-                geom_map(map = malha) +
-                expand_limits(malha) +
-                scale_fill_gradient(low = "wheat", high = "red", name = "Dias") +
-                theme(line = element_blank(), rect = element_blank(),
-                      axis.text = element_blank(),
-                      axis.title = element_blank()) +
-                coord_fixed()
+              mutate(dias = fim - inicio) %>%
+              filter(grau == 1) %>%
+              group_by(cod_sede) %>%
+              summarise(media = mean(dias)) %>%
+              ggplot(mapping = aes(map_id = cod_sede,
+                                   fill = as.numeric(media))) +
+              geom_map(map = malha_trt) +
+              expand_limits(malha_trt) +
+              scale_fill_gradient(low = "wheat", high = "red",
+                                  name = "Dias") +
+              theme(line = element_blank(), rect = element_blank(),
+                    axis.text = element_blank(),
+                    axis.title = element_blank()) +
+              coord_fixed()
           </code></pre>
           <p>Dica: use <code>as.numeric()</code> para converter o cálculo da diferença de dias em numérico.</p>
         </section>
         <section data-background="#017243">
-          <p>Faça um mapa com a taxa de julgamento das varas do trabalho no 1º semestre.</p>
+          <p>Faça um mapa com a taxa de julgamento das varas do trabalho em 2018.</p>
           <pre class="fragment fade-down"><code class="r" data-trim contenteditable spellcheck="false">
             mov_proc %>%
-                filter(grau == 1) %>%
-                group_by(cod_sede) %>%
-                summarise(julgados = sum(julgados),
-                          recebidos = sum(recebidos)) %>%
-                mutate(tx_julg = julgados / recebidos) %>%
-                ggplot(mapping = aes(map_id = cod_sede,
-                                     fill = tx_julg)) +
-                geom_map(map = malha) +
-                expand_limits(malha)
+              filter(grau == 1, year(periodo) == 2018) %>%
+              group_by(cod_sede) %>%
+              summarise(julgados = sum(julgados),
+                        recebidos = sum(recebidos)) %>%
+              mutate(tx_julg = julgados / recebidos) %>%
+              ggplot(mapping = aes(map_id = cod_sede,
+                                   fill = tx_julg)) +
+              geom_map(map = malha_trt) +
+              expand_limits(malha_trt)
+          </code></pre>
+        </section>
+	<section>
+	  <p>Malha do Estado de São Paulo.</p>
+	  <pre><code class="r" data-trim contenteditable spellcheck="false">
+            malha_sp <- readOGR(dsn = "./malhas/uf",
+                                layer = "sao_paulo") %>%
+              fortify(region = "cd_geocmu") %>%
+              rename(x = long, y = lat)
+          </code></pre>
+	</section>
+	<section>
+	  <p>Contar os processos baixados nas varas de Campinas que não sejam de Campinas.</p>
+	  <pre><code class="r" data-trim contenteditable spellcheck="false">
+            prazo %>%
+              filter(grau == 1, sede == "Campinas",
+                     mun_origem != "Campinas") %>%
+              group_by(cod_mun_origem) %>%
+              summarise(total = n())
+          </code></pre>
+	</section>
+	<section>
+	  <p>Mapeamento global vs mapeamento na camada.</p>
+	  <pre><code class="r" data-trim contenteditable spellcheck="false">
+            prazo 
+              filter(grau == 1, sede == "Campinas",
+                     mun_origem != "Campinas") %>%
+              group_by(cod_mun_origem) %>%
+              summarise(total = n()) %>%
+              ggplot(mapping = aes(map_id = cod_mun_origem)) +
+              geom_map(fill = NA, color = "black",
+                       map = malha_sp, data = prazo) +
+              geom_map(mapping = aes(fill = total),
+              color = "black", map = malha_sp) +
+              expand_limits(malha_sp)
+          </code></pre>
+	</section>
+	<section data-background="#017243">
+          <p>Faça um mapa com a duração média dos processos nas varas do trabalho por município de origem.</p>
+          <pre class="fragment fade-down"><code class="r" data-trim contenteditable spellcheck="false">
+            prazo %>%
+              filter(grau == 1) %>%
+              mutate(dias = fim - inicio) %>%
+              group_by(cod_mun_origem) %>%
+              summarise(dias = mean(dias)) %>%
+              ggplot(mapping = aes(map_id = cod_mun_origem,
+                                   fill = as.numeric(dias))) +
+              geom_map(map = malha_sp) +
+              expand_limits(malha_sp)
           </code></pre>
         </section>
       </section>
