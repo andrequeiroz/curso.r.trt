@@ -99,7 +99,7 @@
         </section>
         <section>
           <a href="https://pandoc.org" target="_blank">Pandoc</a>
-          <p>Já incluído na versão do RStudio para Windows.</p>
+          <p>Geralmente incluído na instalação do RStudio.</p>
         </section>
       </section>
       <!-- RStudio e instruções iniciais -->
@@ -1238,258 +1238,154 @@
         <h2>Linguagens de Marcação</h2>
         <ul>
           <li>LaTeX</li>
-          <li>XeTeX</li>
           <li>Markdown</li>
         </ul>
-      </section>
-      <!-- LaTeX -->
-      <section>
-        <section>
-          <h2>LaTeX</h2>
-          <p>teste.Rnw</p>
-          <pre><code class="latex" data-trim contenteditable spellcheck="false">
-            \documentclass{article}
-
-            \begin{document}
-
-            Olá mundo!
-
-            \end{document}
-          </code></pre>
-        </section>
-        <section>
-          <p>Encodificação dos caracteres.</p>
-          <pre><code class="latex" data-trim contenteditable spellcheck="false">
-            \documentclass{article}
-            \usepackage[T1]{fontenc}
-            \usepackage[latin1]{inputenc}
-            \usepackage{lmodern}
-
-            \begin{document}
-
-            Olá mundo!
-
-            \end{document}
-          </code></pre>
-        </section>
-        <section>
-          <p>Primeiro <i>chunk</i> com comandos em R.</p>
-          <pre><code class="latex" data-trim contenteditable spellcheck="false">
-            \title{Processos pendentes}
-            \author{Seção de Estatística}
-            \date{\today}
-
-            \begin{document}
-
-            \maketitle
-
-            &lt;&lt;dados&gt;&gt;=
-            library(tidyverse)
-            library(lubridate)
-            library(knitr)
-
-            # dados
-            pendentes <- read_tsv("pendentes.txt",
-                                  locale = locale(decimal_mark = ",",
-                                                  grouping_mark = ".")) %>%
-              mutate(inicio = dmy(inicio))
-            @
-
-            \end{document}
-          </code></pre>
-        </section>
-        <section>
-          <p>Total de processos (no <i>chunk</i>).</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            # variáveis
-            tot_pend <- pendentes %>%
-                            summarise(total = n())
-          </code></pre>
-          <div class="fragment fade-right">
-            <p>Informação no texto.</p>
-            <pre><code class="r" data-trim contenteditable spellcheck="false">
-              No período de referência existiam \Sexpr{tot_pend} processos
-              pendentes na 3ª Região Judiciária.
-            </code></pre>
-          </div>
-        </section>
-        <section>
-          <p>Total de processos (no <i>chunk</i>) no 1º e 2º Graus.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            # variáveis
-            tot_pend_1g <- pendentes %>%
-                               filter(grau == 1) %>%
-                               summarise(total = n())
-
-            tot_pend_2g <- pendentes %>%
-                               filter(grau == 2) %>%
-                               summarise(total = n())
-          </code></pre>
-          <div class="fragment fade-right">
-            <p>Alterar no texto.</p>
-            <pre><code class="r" data-trim contenteditable spellcheck="false">
-              No período de referência existiam \Sexpr{tot_pend} processos
-              pendentes na 3ª Região Judiciária, sendo \Sexpr{tot_pend_1g}
-              no 1º Grau e \Sexpr{tot_pend_2g} no 2º Grau.
-            </code></pre>
-          </div>
-        </section>
-        <section>
-          <p>Gráfico em novo <i>chunk</i>.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            &lt;&lt;graf_barra&gt;&gt;=
-            pendentes %>%
-              group_by(grau) %>%
-              summarise(total = n()) %>%
-              ggplot(mapping = aes(x = factor(grau), y = total)) +
-              geom_col()
-            @
-          </code></pre>
-          <div class="fragment fade-right">
-            <p>Incluir as opções no <i>chunk</i>.</p>
-            <pre><code class="r" data-trim contenteditable spellcheck="false">
-              echo = FALSE, fig.height = 3.5
-            </code></pre>
-          </div>
-        </section>
-        <section>
-          <p>Período de referência.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            # variáveis
-            periodo_ref <- pendentes %>%
-                               select(periodo) %>%
-                               distinct() %>%
-                               pull() %>%
-                               format("%B de %Y")
-          </code></pre>
-          <div class="fragment fade-right">
-            <p>Alterar no texto.</p>
-            <pre><code class="r" data-trim contenteditable spellcheck="false">
-              Em \Sexpr{periodo_ref}, existiam...
-            </code></pre>
-          </div>
-        </section>
-        <section>
-          <p>Tabelas.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            library(kableExtra)
-
-            # tabelas
-            tb1 <- pendentes %>%
-                filter(sede == "Betim") %>%
-                group_by(sede, vt) %>%
-                summarise(total = n()) %>%
-                ungroup() %>%
-                select(-sede)
-          </code></pre>
-          <div class="fragment fade-right">
-            <p>Carregar pacote do latex.</p>
-            <pre><code class="latex" data-trim contenteditable spellcheck="false">
-              \usepackage{booktabs}
-            </code></pre>
-          </div>
-        </section>
-        <section>
-          <p>Tabela em novo <i>chunk</i>.</p>
-          <pre><code class="r" data-trim contenteditable spellcheck="false">
-            &lt;&lt;tabela, echo = FALSE&gt;&gt;=
-            kable(tb1, format = "latex", booktabs = TRUE) %>%
-                kable_styling(latex_options = "hold_position")
-            @
-          </code></pre>
-        </section>
-        <section data-background="#017243">
-          <font size="6">
-            <p>Produza um relatório simples em LaTeX sobre a movimentação processual em uma Jurisdição da sua escolha. O relatório deve conter:</p>
-            <ul>
-              <li>Título, autor e data.</li>
-              <li>Um parágrafo inicial informando (dinamicamente) a jurisdição escolhida, o período de referência e quantos processos foram recebidos, julgados no período todo e quantos estavam pendentes ao final do período.</li>
-              <li>Uma tabela mostrando mensalmente quantos processos foram recebidos e julgados.</li>
-              <li>Um gráfico de barras com a taxa de julgamento por período.</li>
-              <li>Um mapa com a taxa de julgamento no período da Região.</li>
-            </ul>
-          </font>
-        </section>
-      </section>
-      <!-- XeTeX -->
-      <section>
-        <section>
-          <h2>XeTeX</h2>
-          <p>Utilizar fontes do sistema.</p>
-          <pre><code class="latex" data-trim contenteditable spellcheck="false">
-            \documentclass{article}
-            \usepackage{fontspec}
-            \XeTeXinputencoding{latin1}
-            \defaultfontfeatures{Ligatures=TeX}
-            \setmainfont{Calibri}
-          </code></pre>
-        </section>
-        <section data-background="#017243">
-          <p>Modifique o relatório criado na atividade anterior alterando a fonte para alguma de sua preferência.</p>
-        </section>
       </section>
       <!-- Markdown -->
       <section>
         <section>
           <h2>Markdown</h2>
-          <p>Linguagem de marcação bem mais simples.</p>
-          <pre><code class="markdown" data-trim contenteditable spellcheck="false">
+          <p>Linguagem de marcação "universal" adaptada ao R.</p>
+        </section>
+        <section>
+          <p>Criar novo arquivo no RStudio.</p>
+	  <ul>
+	    <li>File</li>
+	    <li>New File</li>
+	    <li>R Markdown</li>
+	  </ul>
+        </section>
+	<section>
+	  <p>Arquivo OpenDocument Text.</p>
+	  <pre><code data-trim contenteditable spellcheck="false">
             ---
-            title: "Título"
-            author: "Autor"
-            date: "X de xxxxx de XXXX"
-            output: pdf_document
+            title: "Movimentação Processual"
+            author: "Coordenadoria de Estatística do TST"
+            date: "19 de junho de 2018"
+            output: odt_document
             ---
+	  </code></pre>
+	</section>
+	<section>
+	  <p>Primeiro <i>chunk</i> com comandos em R.</p>
+	  <pre><code data-trim contenteditable spellcheck="false">
+            ```{r}
+            library(tidyverse)
+            library(lubridate)
 
-            ```{r include = FALSE}
-            # códigos em R
+            # dados
+            mov_proc <- read_tsv("mov_proc.txt")
             ```
-
-            Texto com `r codigo`.
-          </code></pre>
-        </section>
+	  </code></pre>
+	</section>
         <section>
-          <p>Alterar fonte.</p>
-          <pre><code class="markdown" data-trim contenteditable spellcheck="false">
-            ---
-            title: "Título"
-            author: "Autor"
-            date: "X de xxxxx de XXXX"
-            output:
-              pdf_document:
-                latex_engine: xelatex
-            mainfont: Calibri
-            ---
+          <p>Total de processos (no <i>chunk</i>).</p>
+          <pre><code class="r" data-trim contenteditable spellcheck="false">
+            # variáveis
+            recebidos <- mov_proc %>%
+                           filter(grau == 1, year(periodo) == 2018) %>%
+                           summarise(total = sum(recebidos)) %>%
+                           pull()
           </code></pre>
+          <div class="fragment fade-right">
+            <p>Informação no texto.</p>
+            <pre><code class="r" data-trim contenteditable spellcheck="false">
+              No período de referência foram recebidos `r recebidos`
+              processos no 1º Grau da 15ª Região Judiciária.
+            </code></pre>
+          </div>
         </section>
-        <section>
-          <p>Salvar em formato Word.</p>
-          <pre><code class="markdown" data-trim contenteditable spellcheck="false">
-            ---
-            title: "Título"
-            author: "Autor"
-            date: "X de xxxxx de XXXX"
-            output: word_document
-            ---
+	<section>
+	  <p>Hierarquia de títulos é definida por quantidade de #.</p>
+	  <pre><code class="r" data-trim contenteditable spellcheck="false">
+            # Nível 1
+            ## Nível 2
+            ### Nível 3
+            ...
+	  </code></pre>
+	  <div class="fragment fade-up">
+	    <p>Insira no documento.</p>
+	    <pre><code class="r" data-trim contenteditable spellcheck="false">
+              # Recebimento
+	    </code></pre>
+	  </div>
+	</section>
+	<section>
+	  <p>Função de formatação (no <i>chunk</i>).</p>
+	  <pre><code class="r" data-trim contenteditable spellcheck="false">
+            # funções
+            formatar <- function(x) {
+              format(x, big.mark = ".", decimal.mark = ",")
+            }
           </code></pre>
-        </section>
+	  <div class="fragment fade-right">
+            <p>Atualizar no texto.</p>
+            <pre><code class="r" data-trim contenteditable spellcheck="false">
+              ... `r formatar(recebidos)` ...
+            </code></pre>
+          </div>
+	</section>
+	<section>
+	  <p>Parametrizar o relatório</p>
+	  <pre><code class="r" data-trim contenteditable spellcheck="false">
+            # variáveis
+            ano <- 2018
+            recebidos <- mov_proc %>%
+                           filter(grau == 1, year(periodo) == ano) %>%
+                           summarise(total = sum(recebidos)) %>%
+                           pull()
+          </code></pre>
+          <div class="fragment fade-right">
+            <p>Atualizar no texto.</p>
+            <pre><code class="r" data-trim contenteditable spellcheck="false">
+              Em `r ano`, de referência ...
+            </code></pre>
+          </div>
+	</section>
         <section>
+          <p>Gráfico em novo <i>chunk</i>.</p>
+          <pre><code class="r" data-trim contenteditable spellcheck="false">
+            ```{r}
+            mov_proc %>%
+              filter(grau == 1, year(periodo) == ano) %>%
+              group_by(periodo) %>%
+              summarise(total = sum(recebidos)) %>%
+              ggplot(mapping = aes(x = periodo, y = total)) +
+              geom_line()
+            ```
+          </code></pre>
+          <div class="fragment fade-right">
+            <p>Incluir as opções no <i>chunk</i>.</p>
+            <pre><code class="r" data-trim contenteditable spellcheck="false">
+              echo = FALSE, fig.height = 2.5
+            </code></pre>
+          </div>
+        </section>
+	<section>
           <p>Customizar a partir de um arquivo de referência.</p>
-          <pre><code class="markdown" data-trim contenteditable spellcheck="false">
+          <pre><code data-trim contenteditable spellcheck="false">
             ---
             title: "Título"
             author: "Autor"
             date: "X de xxxxx de XXXX"
             output:
-              word_document:
-                reference_docx: modelo.docx
+              odt_document:
+                reference_odt: modelo.odt
             ---
           </code></pre>
-          <p>Executar o arquivo uma vez. Editar os estilos, cabeçalho e rodapé conforme as preferências e salvar como <code>modelo.docx</code>.</p>
+          <p>Executar o arquivo uma vez. Editar os estilos, cabeçalho e rodapé conforme as preferências e salvar como <code>modelo.odt</code>.</p>
         </section>
         <section data-background="#017243">
-          <p>"Traduza" o relatório criado na atividade de LaTeX para Markdown e compile em formato <code>docx</code>.</p>
-        </section>
+          <font size="6">
+            <p>Produza um relatório simples sobre a movimentação processual em uma Jurisdição da sua escolha. O relatório deve conter:</p>
+            <ul>
+              <li>Título, autor e data.</li>
+              <li>Um parágrafo inicial informando (dinamicamente) a jurisdição escolhida, o período de referência e quantos processos foram recebidos, julgados no período todo e quantos estavam pendentes ao final do período.</li>
+              <li>Um gráfico de barras com a taxa de julgamento por período.</li>
+              <li>Um mapa com a taxa de julgamento no período da Região.</li>
+            </ul>
+          </font>
+        </section>	
       </section>
       <!-- Considerações Finais -->
       <section>
