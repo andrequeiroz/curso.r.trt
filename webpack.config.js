@@ -6,7 +6,7 @@ module.exports = {
     css: "./src/css.js"
   },
   output: {
-    path: path.resolve(__dirname, "dist/assets"),
+    path: path.resolve(__dirname, "assets"),
     filename: "[name].js"
   },
   devServer: {
@@ -15,7 +15,7 @@ module.exports = {
       publicPath: "/assets/"
     },
     static: {
-      directory: path.resolve(__dirname, "dist")
+      directory: path.resolve(__dirname, ".")
     }
   },
   module: {
