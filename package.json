@@ -1,0 +1,31 @@
+{
+  "name": "curso.r.trt",
+  "version": "1.0.0",
+  "description": "Apresentação do curso de R para os TRTs 3 e 15.",
+  "main": "index.js",
+  "scripts": {
+    "serve": "npx webpack serve --mode development",
+    "build": "npx webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrequeiroz/curso.r.trt.git"
+  },
+  "author": "André Queiroz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andrequeiroz/curso.r.trt/issues"
+  },
+  "homepage": "https://andrequeiroz.github.io/curso.r.trt/",
+  "devDependencies": {
+    "css-loader": "^6.7.0",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.70.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.4"
+  },
+  "dependencies": {
+    "highlight.js": "^11.4.0",
+    "reveal.js": "^4.3.0"
+  }
+}
