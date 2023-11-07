@@ -26,6 +26,6 @@
   },
   "dependencies": {
     "highlight.js": "^11.4.0",
-    "reveal.js": "^4.3.0"
+    "reveal.js": "^5.0.1"
   }
 }
