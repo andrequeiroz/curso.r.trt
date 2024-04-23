@@ -18,11 +18,11 @@
   },
   "homepage": "https://andrequeiroz.github.io/curso.r.trt/",
   "devDependencies": {
-    "css-loader": "^6.7.0",
-    "style-loader": "^3.3.1",
+    "css-loader": "^7.1.1",
+    "style-loader": "^4.0.0",
     "webpack": "^5.70.0",
     "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.7.4"
+    "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
     "highlight.js": "^11.4.0",
