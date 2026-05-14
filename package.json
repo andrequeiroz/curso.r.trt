@@ -4,8 +4,8 @@
   "description": "Apresentação do curso de R para os TRTs 3 e 15.",
   "main": "index.js",
   "scripts": {
-    "serve": "npx webpack serve --mode development",
-    "build": "npx webpack --mode production"
+    "serve": "webpack serve --mode development",
+    "build": "webpack --mode production"
   },
   "repository": {
     "type": "git",
@@ -21,11 +21,11 @@
     "css-loader": "^7.1.2",
     "style-loader": "^4.0.0",
     "webpack": "^5.94.0",
-    "webpack-cli": "^6.0.1",
+    "webpack-cli": "^7.0.2",
     "webpack-dev-server": "^5.1.0"
   },
   "dependencies": {
     "highlight.js": "^11.10.0",
-    "reveal.js": "^5.1.0"
+    "reveal.js": "^6.0.1"
   }
 }
